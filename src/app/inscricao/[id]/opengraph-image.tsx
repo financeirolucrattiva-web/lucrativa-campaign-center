@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import sharp from "sharp";
 import { db } from "@/lib/db";
 import { BRAND } from "@/lib/brand";
+import { readFile } from "node:fs/promises";
 
 export const runtime = "nodejs";
 export const alt = "Convite do evento";
@@ -39,6 +40,22 @@ async function fetchAsPngDataUri(url: string): Promise<string | null> {
 
 export default async function OgImage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (id === "cmuhcbxim0002ts73kz7bxjaa") {
+  const arquivo = await readFile(
+    `${process.cwd()}/public/convite-evento.png`
+  );
+
+  const imagem = await sharp(arquivo)
+    .resize(1200, 630, { fit: "contain", background: "#12301c" })
+    .png()
+    .toBuffer();
+
+  return new Response(new Uint8Array(imagem), {
+    headers: {
+      "Content-Type": "image/png",
+    },
+  });
+}
   const campaign = await db.campaign.findUnique({ where: { id } });
 
   const name = campaign?.name ?? "Evento";
